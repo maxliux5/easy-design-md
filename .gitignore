@@ -1,0 +1,15 @@
+# Ignore temporary files and folders
+.DS_Store
+.playwright-mcp/
+*-backup/
+*.backup
+
+# Ignore generated pages (keep only skill files)
+/pages/
+/index.html
+/index-figma.html
+/generate_pages.py
+
+# Ignore old repo folders
+/repo/
+/repo-v2/

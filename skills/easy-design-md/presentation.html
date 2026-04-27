@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Design MD Importer - Swiss Modern</title>
+
+    <!-- Fonts: Archivo + Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;800&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --text-primary: #1a1a1a;
+        --text-secondary: #666666;
+        --accent: #ff3300;
+        --accent-light: rgba(255, 51, 0, 0.1);
+        --black: #000000;
+
+        --font-display: "Archivo", sans-serif;
+        --font-body: "Nunito", sans-serif;
+        --title-size: clamp(2.5rem, 7vw, 5.5rem);
+        --h2-size: clamp(1.8rem, 4vw, 3.2rem);
+        --h3-size: clamp(1.1rem, 2vw, 1.4rem);
+        --body-size: clamp(0.85rem, 1.5vw, 1.1rem);
+        --small-size: clamp(0.7rem, 1vw, 0.9rem);
+
+        --slide-padding: clamp(2rem, 5vw, 5rem);
+        --content-gap: clamp(1.5rem, 3vw, 2.5rem);
+        --element-gap: clamp(0.75rem, 1.5vw, 1.2rem);
+
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-normal: 0.6s;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { height: 100%; overflow-x: hidden; }
+      html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+      .slide {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        background: var(--bg-primary);
+      }
+
+      .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-height: 100%;
+        overflow: hidden;
+        padding: var(--slide-padding);
+      }
+
+      @media (max-height: 700px) {
+        :root {
+          --slide-padding: clamp(1.5rem, 3vw, 3rem);
+          --title-size: clamp(2rem, 5.5vw, 4rem);
+        }
+      }
+
+      @media (max-height: 600px) {
+        :root {
+          --slide-padding: clamp(1rem, 2.5vw, 2rem);
+        }
+        .nav-dots, .keyboard-hint { display: none; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.2s !important;
+        }
+        html { scroll-behavior: auto; }
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition:
+          opacity var(--duration-normal) var(--ease-out-expo),
+          transform var(--duration-normal) var(--ease-out-expo);
+      }
+
+      .slide.visible .reveal {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .reveal:nth-child(1) { transition-delay: 0.05s; }
+      .reveal:nth-child(2) { transition-delay: 0.15s; }
+      .reveal:nth-child(3) { transition-delay: 0.25s; }
+      .reveal:nth-child(4) { transition-delay: 0.35s; }
+      .reveal:nth-child(5) { transition-delay: 0.45s; }
+
+      h1 {
+        font-family: var(--font-display);
+        font-size: var(--title-size);
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+      }
+
+      h2 {
+        font-family: var(--font-display);
+        font-size: var(--h2-size);
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+      }
+
+      h3 {
+        font-family: var(--font-display);
+        font-size: var(--h3-size);
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      p {
+        font-family: var(--font-body);
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      .nav-dots {
+        position: fixed;
+        right: clamp(1rem, 2vw, 2rem);
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 10px;
+        height: 10px;
+        border: 2px solid var(--text-primary);
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .keyboard-hint {
+        position: fixed;
+        bottom: clamp(1rem, 2vw, 2rem);
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: var(--font-body);
+        font-size: var(--small-size);
+        color: var(--text-secondary);
+      }
+
+      .title-slide {
+        background: var(--bg-primary);
+        position: relative;
+      }
+
+      .title-slide::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: clamp(200px, 40vw, 500px);
+        height: 100%;
+        background: var(--black);
+      }
+
+      .title-slide::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: clamp(60px, 15vw, 150px);
+        height: clamp(60px, 15vw, 150px);
+        background: var(--accent);
+      }
+
+      .title-slide .slide-content {
+        position: relative;
+        z-index: 1;
+        align-items: flex-start;
+        padding-left: clamp(2rem, 8vw, 10rem);
+      }
+
+      .title-slide .badge {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        padding: 6px 16px;
+        font-family: var(--font-body);
+        font-size: var(--small-size);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: var(--content-gap);
+      }
+
+      .title-slide h1 {
+        max-width: 12ch;
+        margin-bottom: var(--content-gap);
+      }
+
+      .title-slide p {
+        font-size: calc(var(--body-size) * 1.1);
+        max-width: 35ch;
+      }
+
+      .section-slide .slide-content {
+        padding-left: clamp(2rem, 8vw, 10rem);
+      }
+
+      .section-slide .section-label {
+        font-family: var(--font-body);
+        font-size: var(--small-size);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--accent);
+        margin-bottom: var(--element-gap);
+      }
+
+      .section-slide h2 {
+        max-width: 18ch;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--content-gap);
+        margin-top: var(--content-gap);
+        max-width: min(90vw, 800px);
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--content-gap);
+        margin-top: var(--content-gap);
+      }
+
+      @media (max-width: 900px) {
+        .grid-3 { grid-template-columns: repeat(2, 1fr); }
+      }
+
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--element-gap);
+        margin-top: var(--content-gap);
+      }
+
+      @media (max-width: 800px) {
+        .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      }
+
+      .option-card {
+        background: var(--bg-secondary);
+        padding: var(--content-gap);
+        position: relative;
+        border-left: 4px solid var(--accent);
+        transition: transform 0.3s ease;
+      }
+
+      .option-card:hover {
+        transform: translateX(4px);
+      }
+
+      .option-card .option-label {
+        font-family: var(--font-display);
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: var(--element-gap);
+      }
+
+      .option-card h3 {
+        margin-bottom: calc(var(--element-gap) * 0.5);
+      }
+
+      .brands-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-top: var(--content-gap);
+        max-width: min(90vw, 1000px);
+      }
+
+      .brand-item {
+        background: var(--black);
+        color: white;
+        padding: 10px 12px;
+        font-family: var(--font-body);
+        font-size: var(--small-size);
+        text-align: center;
+        transition: background 0.2s ease;
+      }
+
+      .brand-item:hover {
+        background: var(--accent);
+      }
+
+      .category-card {
+        background: var(--bg-secondary);
+        padding: var(--element-gap);
+        border-radius: 4px;
+      }
+
+      .category-card .category-type {
+        font-family: var(--font-display);
+        font-size: var(--body-size);
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 4px;
+      }
+
+      .category-card .category-brands {
+        font-family: var(--font-body);
+        font-size: var(--small-size);
+        color: var(--text-primary);
+      }
+
+      .steps {
+        display: flex;
+        gap: var(--content-gap);
+        margin-top: var(--content-gap);
+        align-items: stretch;
+      }
+
+      .step {
+        flex: 1;
+        background: var(--bg-secondary);
+        padding: var(--content-gap);
+        position: relative;
+      }
+
+      .step::before {
+        content: attr(data-step);
+        position: absolute;
+        top: -20px;
+        left: var(--content-gap);
+        font-family: var(--font-display);
+        font-size: clamp(3rem, 6vw, 5rem);
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+        opacity: 0.2;
+      }
+
+      .step h3 {
+        margin-bottom: calc(var(--element-gap) * 0.5);
+        position: relative;
+        z-index: 1;
+      }
+
+      .code-block {
+        background: var(--black);
+        color: white;
+        padding: var(--content-gap);
+        font-family: "SF Mono", "Fira Code", monospace;
+        font-size: var(--small-size);
+        line-height: 1.8;
+        max-width: min(90vw, 750px);
+        margin-top: var(--content-gap);
+      }
+
+      .code-block .comment { color: #888; }
+      .code-block .prompt { color: #FFD700; }
+      .code-block .keyword { color: #FF6B6B; }
+      .code-block .string { color: #90EE90; }
+      .code-block .arrow { color: var(--accent); }
+
+      .dir-tree {
+        background: var(--black);
+        color: white;
+        padding: var(--content-gap);
+        font-family: "SF Mono", "Fira Code", monospace;
+        font-size: var(--small-size);
+        line-height: 1.8;
+        max-width: min(90vw, 450px);
+        margin-top: var(--content-gap);
+      }
+
+      .dir-tree .dir { color: #87CEEB; }
+      .dir-tree .file { color: #90EE90; }
+      .dir-tree .highlight { color: var(--accent); }
+
+      .cta-slide {
+        background: var(--black);
+        color: white;
+      }
+
+      .cta-slide .slide-content {
+        align-items: center;
+        text-align: center;
+      }
+
+      .cta-slide h2 {
+        color: white;
+        max-width: 15ch;
+      }
+
+      .cta-slide p {
+        color: #888;
+        margin-top: var(--element-gap);
+      }
+
+      .cta-slide .install-cmd {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        padding: 14px 32px;
+        font-family: "SF Mono", "Fira Code", monospace;
+        font-size: var(--body-size);
+        margin-top: var(--content-gap);
+      }
+
+      .cta-slide .geo-badge {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        border: 4px solid var(--accent);
+        border-radius: 50%;
+        opacity: 0.3;
+      }
+
+      .cta-slide .geo-badge-1 {
+        top: 10%;
+        right: 15%;
+      }
+
+      .cta-slide .geo-badge-2 {
+        bottom: 15%;
+        left: 10%;
+        width: 80px;
+        height: 80px;
+      }
+    </style>
+</head>
+<body>
+    <nav class="nav-dots"></nav>
+    <div class="keyboard-hint">← → Arrow keys to navigate</div>
+
+    <!-- Slide 1: Title -->
+    <section class="slide title-slide">
+      <div class="slide-content">
+        <div class="badge reveal">Claude Code Skill</div>
+        <h1 class="reveal">Design MD<br>Importer</h1>
+        <p class="reveal">告诉 AI 你想模仿的品牌，它会自动下载 DESIGN.md</p>
+      </div>
+    </section>
+
+    <!-- Slide 2: Problem -->
+    <section class="slide section-slide">
+      <div class="slide-content">
+        <div class="section-label reveal">01 / BEFORE</div>
+        <h2 class="reveal">之前：不知道该选哪个品牌</h2>
+        <div class="code-block reveal">
+<span class="comment">// 用户想说"我想做一个 SaaS 官网"</span>
+<span class="comment">// 但不知道有哪些品牌可以选择</span>
+<span class="comment">// 也不知道哪个品牌的设计最适合自己</span>
+<span class="comment">// 只能盲目下载一个试试看</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 3: Solution - Dual Track -->
+    <section class="slide section-slide">
+      <div class="slide-content">
+        <div class="section-label reveal">02 / NOW</div>
+        <h2 class="reveal">现在：双轨选择流程</h2>
+        <div class="grid-2">
+          <div class="option-card reveal">
+            <div class="option-label">A</div>
+            <h3>智能推荐</h3>
+            <p>告诉 AI 你想做什么页面类型，AI 帮你推荐最合适的品牌</p>
+          </div>
+          <div class="option-card reveal">
+            <div class="option-label">B</div>
+            <h3>展示 Demo</h3>
+            <p>AI 展示多个品牌的视觉预览，你看后选择想要的风格</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4: Smart Recommendation -->
+    <section class="slide section-slide">
+      <div class="slide-content">
+        <div class="section-label reveal">03 / SMART RECOMMEND</div>
+        <h2 class="reveal">智能推荐：根据页面类型</h2>
+        <div class="grid-4">
+          <div class="category-card reveal">
+            <div class="category-type">SaaS 产品页</div>
+            <div class="category-brands">Stripe, Linear, Vercel</div>
+          </div>
+          <div class="category-card reveal">
+            <div class="category-type">电商详情</div>
+            <div class="category-brands">Shopify, Apple</div>
+          </div>
+          <div class="category-card reveal">
+            <div class="category-type">开发者工具</div>
+            <div class="category-brands">GitHub, Vercel</div>
+          </div>
+          <div class="category-card reveal">
+            <div class="category-type">文档/知识库</div>
+            <div class="category-brands">Notion, Mintlify</div>
+          </div>
+          <div class="category-card reveal">
+            <div class="category-type">企业/高端</div>
+            <div class="category-brands">Stripe, Airbnb</div>
+          </div>
+          <div class="category-card reveal">
+            <div class="category-type">AI/科技感</div>
+            <div class="category-brands">Claude, OpenAI</div>
+          </div>
+          <div class="category-card reveal">
+            <div class="category-type">移动端优先</div>
+            <div class="category-brands">Apple, Superhuman</div>
+          </div>
+          <div class="category-card reveal">
+            <div class="category-type">创意展示</div>
+            <div class="category-brands">Figma, Framer</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Demo Preview -->
+    <section class="slide section-slide">
+      <div class="slide-content">
+        <div class="section-label reveal">04 / DEMO PREVIEW</div>
+        <h2 class="reveal">展示 Demo：代表性品牌预览</h2>
+        <div class="brands-grid">
+          <div class="brand-item">Stripe</div>
+          <div class="brand-item">Linear</div>
+          <div class="brand-item">Airbnb</div>
+          <div class="brand-item">Apple</div>
+          <div class="brand-item">Notion</div>
+          <div class="brand-item">Figma</div>
+          <div class="brand-item">Vercel</div>
+          <div class="brand-item">GitHub</div>
+          <div class="brand-item">Spotify</div>
+          <div class="brand-item">...59+</div>
+        </div>
+        <p class="reveal" style="margin-top: var(--content-gap); max-width: 40ch;">每个品牌展示：主题色彩、字体风格、排版特点、示例 UI 片段</p>
+      </div>
+    </section>
+
+    <!-- Slide 6: Brands -->
+    <section class="slide section-slide">
+      <div class="slide-content">
+        <div class="section-label reveal">05 / BRANDS</div>
+        <h2 class="reveal">支持 59+ 个设计系统</h2>
+        <div class="brands-grid">
+          <div class="brand-item">airbnb</div>
+          <div class="brand-item">apple</div>
+          <div class="brand-item">cal</div>
+          <div class="brand-item">claude</div>
+          <div class="brand-item">cursor</div>
+          <div class="brand-item">figma</div>
+          <div class="brand-item">framer</div>
+          <div class="brand-item">linear</div>
+          <div class="brand-item">notion</div>
+          <div class="brand-item">raycast</div>
+          <div class="brand-item">resend</div>
+          <div class="brand-item">spotify</div>
+          <div class="brand-item">stripe</div>
+          <div class="brand-item">vercel</div>
+          <div class="brand-item">...more</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 7: Workflow -->
+    <section class="slide section-slide">
+      <div class="slide-content">
+        <div class="section-label reveal">06 / WORKFLOW</div>
+        <h2 class="reveal">四步完成</h2>
+        <div class="steps">
+          <div class="step reveal" data-step="1">
+            <h3>表达需求</h3>
+            <p>告诉 AI 你想做什么类型的页面</p>
+          </div>
+          <div class="step reveal" data-step="2">
+            <h3>选择方式</h3>
+            <p>智能推荐 or 展示 Demo</p>
+          </div>
+          <div class="step reveal" data-step="3">
+            <h3>确认下载</h3>
+            <p>选择品牌后自动下载 DESIGN.md</p>
+          </div>
+          <div class="step reveal" data-step="4">
+            <h3>开始设计</h3>
+            <p>参考设计系统生成符合风格的 UI</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 8: Structure -->
+    <section class="slide section-slide">
+      <div class="slide-content">
+        <div class="section-label reveal">07 / STRUCTURE</div>
+        <h2 class="reveal">目录结构</h2>
+        <div class="dir-tree reveal">
+<span class="dir">~/.design-md/</span>
+├── <span class="dir highlight">cal/</span>
+│   └── <span class="file">DESIGN.md</span>
+├── <span class="dir">stripe/</span>
+│   └── <span class="file">DESIGN.md</span>
+└── <span class="dir">...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 9: Install -->
+    <section class="slide section-slide">
+      <div class="slide-content">
+        <div class="section-label reveal">08 / INSTALL</div>
+        <h2 class="reveal">安装方式</h2>
+        <div class="code-block reveal">
+<span class="comment">// 方式一：一键安装</span>
+$ npx agent-skills-cli install <span class="string">https://github.com/用户名/easy-design-md</span>
+
+<span class="comment">// 方式二：手动安装</span>
+$ cp SKILL.md ~/.antigravity/skills/design-md-importer/
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 10: CTA -->
+    <section class="slide cta-slide">
+      <div class="geo-badge geo-badge-1"></div>
+      <div class="geo-badge geo-badge-2"></div>
+      <div class="slide-content">
+        <h2 class="reveal">立即开始</h2>
+        <p class="reveal">告诉 AI "我要做一个 SaaS 官网" 或 "展示一些品牌让我看看"</p>
+        <div class="install-cmd reveal">npx agent-skills-cli install ...</div>
+      </div>
+    </section>
+
+    <script>
+      class SlidePresentation {
+        constructor() {
+          this.slides = document.querySelectorAll(".slide");
+          this.navDots = document.querySelector(".nav-dots");
+          this.currentSlide = 0;
+          this.setupNavDots();
+          this.setupIntersectionObserver();
+          this.setupKeyboardNav();
+        }
+
+        setupNavDots() {
+          this.navDots.innerHTML = "";
+          this.slides.forEach((_, i) => {
+            const dot = document.createElement("div");
+            dot.className = "nav-dot" + (i === 0 ? " active" : "");
+            dot.addEventListener("click", () => this.goToSlide(i));
+            this.navDots.appendChild(dot);
+          });
+        }
+
+        setupIntersectionObserver() {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                const index = Array.from(this.slides).indexOf(entry.target);
+                this.updateNavDots(index);
+              }
+            });
+          }, { threshold: 0.5 });
+          this.slides.forEach(slide => observer.observe(slide));
+        }
+
+        setupKeyboardNav() {
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowDown" || e.key === "ArrowRight" || e.key === " ") {
+              e.preventDefault();
+              this.nextSlide();
+            } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+              e.preventDefault();
+              this.prevSlide();
+            }
+          });
+        }
+
+        updateNavDots(index) {
+          const dots = this.navDots.querySelectorAll(".nav-dot");
+          dots.forEach((dot, i) => dot.classList.toggle("active", i === index));
+          this.currentSlide = index;
+        }
+
+        goToSlide(index) {
+          this.slides[index].scrollIntoView({ behavior: "smooth" });
+        }
+
+        nextSlide() {
+          if (this.currentSlide < this.slides.length - 1) {
+            this.goToSlide(this.currentSlide + 1);
+          }
+        }
+
+        prevSlide() {
+          if (this.currentSlide > 0) {
+            this.goToSlide(this.currentSlide - 1);
+          }
+        }
+      }
+
+      new SlidePresentation();
+    </script>
+</body>
+</html>
