@@ -3,8 +3,8 @@
 .playwright-mcp/
 
 # Ignore slide screenshots in root (they're already in skills/)
-0*-*/
-slide-*/
+0*-*
+slide-*
 
 # Ignore generated showcase pages
 /pages/
