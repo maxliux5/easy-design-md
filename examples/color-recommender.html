@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Palette Recommender</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0a0a0a;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .header h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .header h1 .accent {
+      background: linear-gradient(180deg, #ff2d92, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    /* Scenario Selector */
+    .scenario-section {
+      margin-bottom: 50px;
+    }
+
+    .scenario-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 20px;
+    }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .scenario-btn {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #888;
+      padding: 15px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .scenario-btn:hover,
+    .scenario-btn.active {
+      border-color: #ff2d92;
+      color: #ff2d92;
+      background: rgba(255,45,146,0.1);
+    }
+
+    /* Recommendation Result */
+    .recommendation {
+      display: none;
+      margin-bottom: 50px;
+    }
+
+    .recommendation.visible {
+      display: block;
+    }
+
+    .rec-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .rec-brand-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      background: var(--brand-color);
+      color: #fff;
+      padding: 8px 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .rec-reason {
+      color: #888;
+      font-size: 0.95rem;
+    }
+
+    /* Color Demo Grid */
+    .demo-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    /* Palette Card */
+    .palette-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+
+    .palette-card h3 {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .color-list {
+      padding: 20px;
+    }
+
+    .color-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .color-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .color-swatch-large {
+      width: 50px;
+      height: 50px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .color-info {
+      flex: 1;
+    }
+
+    .color-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .color-hex {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #555;
+    }
+
+    /* UI Preview */
+    .ui-preview {
+      padding: 20px;
+      background: var(--preview-bg, #ffffff);
+    }
+
+    .preview-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color, #e5e5e5);
+      margin-bottom: 30px;
+    }
+
+    .preview-logo {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--heading-color);
+    }
+
+    .preview-links {
+      display: flex;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: var(--body-color);
+    }
+
+    .preview-hero {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .preview-headline {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--heading-color);
+      margin-bottom: 15px;
+      letter-spacing: var(--tracking, -0.02em);
+    }
+
+    .preview-subhead {
+      font-size: 1rem;
+      color: var(--body-color);
+      margin-bottom: 30px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .preview-cta {
+      display: inline-block;
+      background: var(--brand-color);
+      color: #fff;
+      padding: 12px 30px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    .preview-card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .preview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      border-radius: var(--radius, 8px);
+    }
+
+    .preview-card-title {
+      font-weight: 600;
+      color: var(--heading-color);
+      margin-bottom: 8px;
+    }
+
+    .preview-card-text {
+      font-size: 0.85rem;
+      color: var(--body-color);
+    }
+
+    /* Footer */
+    .preview-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted-color);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .scenario-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .demo-section {
+        grid-template-columns: 1fr;
+      }
+      .header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Color <span class="accent">Recommender</span></h1>
+      <p>Select your page type and get a design system recommendation with live preview</p>
+    </div>
+
+    <!-- Scenario Selector -->
+    <div class="scenario-section">
+      <div class="scenario-label">I want to build a...</div>
+      <div class="scenario-grid">
+        <button class="scenario-btn active" data-scenario="saas" data-brand="stripe">SaaS Product Page</button>
+        <button class="scenario-btn" data-scenario="docs" data-brand="linear">Developer Docs</button>
+        <button class="scenario-btn" data-scenario="marketplace" data-brand="airbnb">Marketplace</button>
+        <button class="scenario-btn" data-scenario="brand" data-brand="apple">Brand Site</button>
+      </div>
+    </div>
+
+    <!-- Recommendation -->
+    <div class="recommendation visible" id="rec-stripe">
+      <div class="rec-header">
+        <span class="rec-brand-badge" style="--brand-color: #533afd;">Stripe</span>
+        <span class="rec-reason">Recommended for SaaS: clean, professional, trust-building fintech aesthetic</span>
+      </div>
+
+      <div class="demo-section">
+        <!-- Color Palette -->
+        <div class="palette-card">
+          <h3>Color Palette from DESIGN.md</h3>
+          <div class="color-list">
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #533afd;"></div>
+              <div class="color-info">
+                <div class="color-name">Stripe Purple</div>
+                <div class="color-hex">#533afd — Primary brand, CTAs</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #061b31;"></div>
+              <div class="color-info">
+                <div class="color-name">Deep Navy</div>
+                <div class="color-hex">#061b31 — Headings, premium feel</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #ffffff;"></div>
+              <div class="color-info">
+                <div class="color-name">Pure White</div>
+                <div class="color-hex">#ffffff — Background, card surfaces</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #ea2261;"></div>
+              <div class="color-info">
+                <div class="color-name">Ruby</div>
+                <div class="color-hex">#ea2261 — Accent, alerts, icons</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #f96bee;"></div>
+              <div class="color-info">
+                <div class="color-name">Magenta</div>
+                <div class="color-hex">#f96bee — Gradients, highlights</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Preview -->
+        <div class="palette-card">
+          <h3>Live Preview — Stripe Style</h3>
+          <div class="ui-preview" style="
+            --brand-color: #533afd;
+            --preview-bg: #ffffff;
+            --heading-color: #061b31;
+            --body-color: #64748d;
+            --muted-color: #94a3b8;
+            --card-bg: #ffffff;
+            --border-color: #e5edf5;
+            --radius: 8px;
+            --tracking: -1.4px;
+          ">
+            <div class="preview-nav">
+              <div class="preview-logo">Acme Finance</div>
+              <div class="preview-links">
+                <span>Product</span>
+                <span>Pricing</span>
+                <span>Docs</span>
+              </div>
+            </div>
+            <div class="preview-hero">
+              <div class="preview-headline">Payments infrastructure for the internet</div>
+              <div class="preview-subhead">Millions of companies use Stripe to accept payments, send payouts, and manage their businesses online.</div>
+              <button class="preview-cta">Start Now →</button>
+            </div>
+            <div class="preview-card-grid">
+              <div class="preview-card">
+                <div class="preview-card-title">Fast Integration</div>
+                <div class="preview-card-text">Get up and running in minutes with our well-documented APIs.</div>
+              </div>
+              <div class="preview-card">
+                <div class="preview-card-title">Secure by Default</div>
+                <div class="preview-card-text">PCI-DSS Level 1 certified. Your customers' data is safe.</div>
+              </div>
+              <div class="preview-card">
+                <div class="preview-card-title">Global Scale</div>
+                <div class="preview-card-text">Accept payments from 195+ countries worldwide.</div>
+              </div>
+            </div>
+            <div class="preview-footer">© 2026 Acme Finance · Privacy · Terms</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linear Recommendation -->
+    <div class="recommendation" id="rec-linear">
+      <div class="rec-header">
+        <span class="rec-brand-badge" style="--brand-color: #5e6ad2;">Linear</span>
+        <span class="rec-reason">Recommended for Dev Docs: dark mode, minimal, technical precision</span>
+      </div>
+
+      <div class="demo-section">
+        <div class="palette-card">
+          <h3>Color Palette from DESIGN.md</h3>
+          <div class="color-list">
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #5e6ad2;"></div>
+              <div class="color-info">
+                <div class="color-name">Linear Lavender</div>
+                <div class="color-hex">#5e6ad2 — Primary accent</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #010102;"></div>
+              <div class="color-info">
+                <div class="color-name">Canvas (Deep Dark)</div>
+                <div class="color-hex">#010102 — Background</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #0f1011;"></div>
+              <div class="color-info">
+                <div class="color-name">Surface 1</div>
+                <div class="color-hex">#0f1011 — Cards, panels</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #f7f8f8;"></div>
+              <div class="color-info">
+                <div class="color-name">Ink (Light Text)</div>
+                <div class="color-hex">#f7f8f8 — Primary text</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #23252a;"></div>
+              <div class="color-info">
+                <div class="color-name">Hairline</div>
+                <div class="color-hex">#23252a — Borders, dividers</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-card">
+          <h3>Live Preview — Linear Style</h3>
+          <div class="ui-preview" style="
+            --brand-color: #5e6ad2;
+            --preview-bg: #010102;
+            --heading-color: #f7f8f8;
+            --body-color: #8a8f98;
+            --muted-color: #62666d;
+            --card-bg: #0f1011;
+            --border-color: #23252a;
+            --radius: 6px;
+            --tracking: -0.02em;
+          ">
+            <div class="preview-nav">
+              <div class="preview-logo">DevDocs</div>
+              <div class="preview-links">
+                <span>Guide</span>
+                <span>API</span>
+                <span>Examples</span>
+              </div>
+            </div>
+            <div class="preview-hero">
+              <div class="preview-headline">Build faster with our API</div>
+              <div class="preview-subhead">Comprehensive documentation with examples in JavaScript, Python, and Go.</div>
+              <button class="preview-cta">Read the Docs →</button>
+            </div>
+            <div class="preview-card-grid">
+              <div class="preview-card">
+                <div class="preview-card-title">Quick Start</div>
+                <div class="preview-card-text">Get your first request working in under 5 minutes.</div>
+              </div>
+              <div class="preview-card">
+                <div class="preview-card-title">SDKs</div>
+                <div class="preview-card-text">Official libraries for all major languages.</div>
+              </div>
+              <div class="preview-card">
+                <div class="preview-card-title">Support</div>
+                <div class="preview-card-text">24/7 technical support for enterprise customers.</div>
+              </div>
+            </div>
+            <div class="preview-footer">© 2026 DevDocs · GitHub · Discord</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Airbnb Recommendation -->
+    <div class="recommendation" id="rec-airbnb">
+      <div class="rec-header">
+        <span class="rec-brand-badge" style="--brand-color: #ff385c;">Airbnb</span>
+        <span class="rec-reason">Recommended for Marketplace: trust, warmth, high-end hospitality</span>
+      </div>
+
+      <div class="demo-section">
+        <div class="palette-card">
+          <h3>Color Palette from DESIGN.md</h3>
+          <div class="color-list">
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #ff385c;"></div>
+              <div class="color-info">
+                <div class="color-name">Rausch (Signature)</div>
+                <div class="color-hex">#ff385c — Primary brand, CTAs</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #0a0a0a;"></div>
+              <div class="color-info">
+                <div class="color-name">Black</div>
+                <div class="color-hex">#0a0a0a — Headlines</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #f7f7f7;"></div>
+              <div class="color-info">
+                <div class="color-name">Off White</div>
+                <div class="color-hex">#f7f7f7 — Background</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #008a05;"></div>
+              <div class="color-info">
+                <div class="color-name">Host Green</div>
+                <div class="color-hex">#008a05 — Trust signals, success</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #b0b0b0;"></div>
+              <div class="color-info">
+                <div class="color-name">石板 (Slate)</div>
+                <div class="color-hex">#b0b0b0 — Secondary text</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-card">
+          <h3>Live Preview — Airbnb Style</h3>
+          <div class="ui-preview" style="
+            --brand-color: #ff385c;
+            --preview-bg: #f7f7f7;
+            --heading-color: #0a0a0a;
+            --body-color: #717171;
+            --muted-color: #b0b0b0;
+            --card-bg: #ffffff;
+            --border-color: #dddddd;
+            --radius: 12px;
+            --tracking: normal;
+          ">
+            <div class="preview-nav">
+              <div class="preview-logo">MarketPlace</div>
+              <div class="preview-links">
+                <span>Explore</span>
+                <span>Wishlists</span>
+                <span>Trips</span>
+              </div>
+            </div>
+            <div class="preview-hero">
+              <div class="preview-headline">Find your next stay</div>
+              <div class="preview-subhead">Search unique homes and experiences to make your trip unforgettable.</div>
+              <button class="preview-cta">Start Exploring</button>
+            </div>
+            <div class="preview-card-grid">
+              <div class="preview-card">
+                <div class="preview-card-title">Curated Homes</div>
+                <div class="preview-card-text">Hand-picked properties with verified reviews.</div>
+              </div>
+              <div class="preview-card">
+                <div class="preview-card-title">Secure Payments</div>
+                <div class="preview-card-text">Your payment is protected until check-in.</div>
+              </div>
+              <div class="preview-card">
+                <div class="preview-card-title">24/7 Support</div>
+                <div class="preview-card-text">We're here to help, wherever you are.</div>
+              </div>
+            </div>
+            <div class="preview-footer">© 2026 MarketPlace · Privacy · Terms · Currency: USD</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Apple Recommendation -->
+    <div class="recommendation" id="rec-apple">
+      <div class="rec-header">
+        <span class="rec-brand-badge" style="--brand-color: #0071e3;">Apple</span>
+        <span class="rec-reason">Recommended for Brand Sites: clean, premium, product-focused</span>
+      </div>
+
+      <div class="demo-section">
+        <div class="palette-card">
+          <h3>Color Palette from DESIGN.md</h3>
+          <div class="color-list">
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #0071e3;"></div>
+              <div class="color-info">
+                <div class="color-name">System Blue</div>
+                <div class="color-hex">#0071e3 — Links, CTAs, interactive</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #1d1d1f;"></div>
+              <div class="color-info">
+                <div class="color-name">Black</div>
+                <div class="color-hex">#1d1d1f — Primary text</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #f5f5f7;"></div>
+              <div class="color-info">
+                <div class="color-name">Gray 6</div>
+                <div class="color-hex">#f5f5f7 — Section backgrounds</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #86868b;"></div>
+              <div class="color-info">
+                <div class="color-name">Gray</div>
+                <div class="color-hex">#86868b — Secondary text</div>
+              </div>
+            </div>
+            <div class="color-item">
+              <div class="color-swatch-large" style="background: #ffffff;"></div>
+              <div class="color-info">
+                <div class="color-name">White</div>
+                <div class="color-hex">#ffffff — Card backgrounds</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-card">
+          <h3>Live Preview — Apple Style</h3>
+          <div class="ui-preview" style="
+            --brand-color: #0071e3;
+            --preview-bg: #f5f5f7;
+            --heading-color: #1d1d1f;
+            --body-color: #86868b;
+            --muted-color: #6e6e73;
+            --card-bg: #ffffff;
+            --border-color: #d2d2d7;
+            --radius: 0px;
+            --tracking: -0.01em;
+          ">
+            <div class="preview-nav">
+              <div class="preview-logo">Product</div>
+              <div class="preview-links">
+                <span>Mac</span>
+                <span>iPad</span>
+                <span>iPhone</span>
+              </div>
+            </div>
+            <div class="preview-hero">
+              <div class="preview-headline">iPhone 16 Pro</div>
+              <div class="preview-subhead">Titanium. A17 Pro chip. Camera Control. The ultimate iPhone experience.</div>
+              <button class="preview-cta">Learn More ›</button>
+            </div>
+            <div class="preview-card-grid">
+              <div class="preview-card" style="border-radius: 0;">
+                <div class="preview-card-title">A17 Pro Chip</div>
+                <div class="preview-card-text">Gaming. Multitasking. Everything's faster.</div>
+              </div>
+              <div class="preview-card" style="border-radius: 0;">
+                <div class="preview-card-title">48MP Camera</div>
+                <div class="preview-card-text">The most advanced camera system ever.</div>
+              </div>
+              <div class="preview-card" style="border-radius: 0;">
+                <div class="preview-card-title">Titanium</div>
+                <div class="preview-card-text">Strong and light. Aerospace grade.</div>
+              </div>
+            </div>
+            <div class="preview-footer">Copyright © 2026 Apple Inc. · Privacy Policy · Terms of Use</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const scenarioBtns = document.querySelectorAll('.scenario-btn');
+    const recommendations = document.querySelectorAll('.recommendation');
+
+    scenarioBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active button
+        scenarioBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Show corresponding recommendation
+        const brand = btn.dataset.brand;
+        recommendations.forEach(rec => {
+          rec.classList.remove('visible');
+        });
+        document.getElementById('rec-' + brand).classList.add('visible');
+      });
+    });
+  </script>
+</body>
+</html>

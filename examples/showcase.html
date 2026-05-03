@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design MD Showcase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0a0a0a;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .header h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .header h1 .accent {
+      background: linear-gradient(180deg, #ff2d92, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: #888;
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Brand Grid */
+    .brand-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+    }
+
+    /* Brand Card */
+    .brand-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .brand-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--brand-gradient);
+    }
+
+    /* Color Palette Strip */
+    .color-strip {
+      display: flex;
+      height: 60px;
+    }
+
+    .color-swatch {
+      flex: 1;
+      position: relative;
+    }
+
+    .color-swatch::after {
+      content: attr(data-color);
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: #555;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .color-swatch:hover::after {
+      opacity: 1;
+    }
+
+    /* Card Content */
+    .card-content {
+      padding: 30px;
+    }
+
+    .brand-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-tagline {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    /* Typography Sample */
+    .typo-sample {
+      background: rgba(0,0,0,0.3);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .typo-display {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--brand-color);
+    }
+
+    .typo-body {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    /* Feature Tags */
+    .feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .feature-tag {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 4px 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #888;
+    }
+
+    /* Design Token Preview */
+    .token-section {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+    }
+
+    .token-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .token-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .token {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .token-color {
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .token-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    /* Button Preview */
+    .button-preview {
+      display: flex;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--brand-color);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--brand-color);
+      color: var(--brand-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--brand-color);
+      color: #fff;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .brand-grid {
+        grid-template-columns: 1fr;
+      }
+      .header h1 {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Design MD <span class="accent">Showcase</span></h1>
+      <p>Explore design systems from top brands. Each system includes colors, typography, spacing, and component guidelines.</p>
+    </div>
+
+    <div class="brand-grid">
+      <!-- Stripe -->
+      <div class="brand-card" style="--brand-color: #533afd; --brand-gradient: linear-gradient(90deg, #533afd, #00d4ff);">
+        <div class="color-strip">
+          <div class="color-swatch" style="background: #533afd;" data-color="#533afd"></div>
+          <div class="color-swatch" style="background: #061b31;" data-color="#061b31"></div>
+          <div class="color-swatch" style="background: #ffffff;" data-color="#ffffff"></div>
+          <div class="color-swatch" style="background: #ea2261;" data-color="#ea2261"></div>
+          <div class="color-swatch" style="background: #f96bee;" data-color="#f96bee"></div>
+        </div>
+        <div class="card-content">
+          <div class="brand-name">Stripe</div>
+          <div class="brand-tagline">Fintech Design Gold Standard</div>
+          <div class="typo-sample">
+            <div class="typo-display">Premium Finance</div>
+            <div class="typo-body">sohne-var with ss01 stylistic set, weight 300 headlines</div>
+          </div>
+          <div class="feature-tags">
+            <span class="feature-tag">Multi-layer shadows</span>
+            <span class="feature-tag">OpenType features</span>
+            <span class="feature-tag">Tight tracking</span>
+          </div>
+          <div class="token-section">
+            <div class="token-label">Brand Colors</div>
+            <div class="token-row">
+              <div class="token">
+                <div class="token-color" style="background: #533afd;"></div>
+                <span class="token-name">Purple</span>
+              </div>
+              <div class="token">
+                <div class="token-color" style="background: #061b31;"></div>
+                <span class="token-name">Navy</span>
+              </div>
+              <div class="token">
+                <div class="token-color" style="background: #ea2261;"></div>
+                <span class="token-name">Ruby</span>
+              </div>
+            </div>
+          </div>
+          <div class="button-preview">
+            <button class="btn btn-primary">Get Started</button>
+            <button class="btn btn-secondary">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linear -->
+      <div class="brand-card" style="--brand-color: #5e6ad2; --brand-gradient: linear-gradient(90deg, #5e6ad2, #8b8fe6);">
+        <div class="color-strip">
+          <div class="color-swatch" style="background: #5e6ad2;" data-color="#5e6ad2"></div>
+          <div class="color-swatch" style="background: #1a1a1a;" data-color="#1a1a1a"></div>
+          <div class="color-swatch" style="background: #2a2a2a;" data-color="#2a2a2a"></div>
+          <div class="color-swatch" style="background: #ffffff;" data-color="#ffffff"></div>
+          <div class="color-swatch" style="background: #e5e5e5;" data-color="#e5e5e5"></div>
+        </div>
+        <div class="card-content">
+          <div class="brand-name">Linear</div>
+          <div class="brand-tagline">Minimal, Dark, Efficient</div>
+          <div class="typo-sample">
+            <div class="typo-display">System Design</div>
+            <div class="typo-body">Inter-inspired typography, subtle contrast, refined hierarchy</div>
+          </div>
+          <div class="feature-tags">
+            <span class="feature-tag">Dark mode first</span>
+            <span class="feature-tag">Subtle borders</span>
+            <span class="feature-tag">Mono accents</span>
+          </div>
+          <div class="token-section">
+            <div class="token-label">Brand Colors</div>
+            <div class="token-row">
+              <div class="token">
+                <div class="token-color" style="background: #5e6ad2;"></div>
+                <span class="token-name">Indigo</span>
+              </div>
+              <div class="token">
+                <div class="token-color" style="background: #1a1a1a;"></div>
+                <span class="token-name">Void</span>
+              </div>
+              <div class="token">
+                <div class="token-color" style="background: #2a2a2a;"></div>
+                <span class="token-name">Surface</span>
+              </div>
+            </div>
+          </div>
+          <div class="button-preview">
+            <button class="btn btn-primary">Get Started</button>
+            <button class="btn btn-secondary">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Airbnb -->
+      <div class="brand-card" style="--brand-color: #ff385c; --brand-gradient: linear-gradient(90deg, #ff385c, #ff6b6b);">
+        <div class="color-strip">
+          <div class="color-swatch" style="background: #ff385c;" data-color="#ff385c"></div>
+          <div class="color-swatch" style="background: #0a0a0a;" data-color="#0a0a0a"></div>
+          <div class="color-swatch" style="background: #f7f7f7;" data-color="#f7f7f7"></div>
+          <div class="color-swatch" style="background: #008a05;" data-color="#008a05"></div>
+          <div class="color-swatch" style="background: #b0b0b0;" data-color="#b0b0b0"></div>
+        </div>
+        <div class="card-content">
+          <div class="brand-name">Airbnb</div>
+          <div class="brand-tagline">Warm, Trustworthy, Hospitality</div>
+          <div class="typo-sample">
+            <div class="typo-display">Belong Anywhere</div>
+            <div class="typo-body">Cereal font family, warm neutrals, generous whitespace</div>
+          </div>
+          <div class="feature-tags">
+            <span class="feature-tag">Rounded corners</span>
+            <span class="feature-tag">Warm tones</span>
+            <span class="feature-tag">Trust signals</span>
+          </div>
+          <div class="token-section">
+            <div class="token-label">Brand Colors</div>
+            <div class="token-row">
+              <div class="token">
+                <div class="token-color" style="background: #ff385c;"></div>
+                <span class="token-name">Rausch</span>
+              </div>
+              <div class="token">
+                <div class="token-color" style="background: #008a05;"></div>
+                <span class="token-name">Host</span>
+              </div>
+              <div class="token">
+                <div class="token-color" style="background: #b0b0b0;"></div>
+                <span class="token-name">石板</span>
+              </div>
+            </div>
+          </div>
+          <div class="button-preview">
+            <button class="btn btn-primary">Get Started</button>
+            <button class="btn btn-secondary">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Apple -->
+      <div class="brand-card" style="--brand-color: #0071e3; --brand-gradient: linear-gradient(90deg, #0071e3, #007AFF);">
+        <div class="color-strip">
+          <div class="color-swatch" style="background: #0071e3;" data-color="#0071e3"></div>
+          <div class="color-swatch" style="background: #1d1d1f;" data-color="#1d1d1f"></div>
+          <div class="color-swatch" style="background: #f5f5f7;" data-color="#f5f5f7"></div>
+          <div class="color-swatch" style="background: #86868b;" data-color="#86868b"></div>
+          <div class="color-swatch" style="background: #ffffff;" data-color="#ffffff"></div>
+        </div>
+        <div class="card-content">
+          <div class="brand-name">Apple</div>
+          <div class="brand-tagline">Clean, Tech, Elegant</div>
+          <div class="typo-sample">
+            <div class="typo-display">Think Different</div>
+            <div class="typo-body">SF Pro typography, SF Pro Display headlines, Apple system colors</div>
+          </div>
+          <div class="feature-tags">
+            <span class="feature-tag">SF Pro font</span>
+            <span class="feature-tag">System blue</span>
+            <span class="feature-tag">Minimal shadows</span>
+          </div>
+          <div class="token-section">
+            <div class="token-label">Brand Colors</div>
+            <div class="token-row">
+              <div class="token">
+                <div class="token-color" style="background: #0071e3;"></div>
+                <span class="token-name">Blue</span>
+              </div>
+              <div class="token">
+                <div class="token-color" style="background: #1d1d1f;"></div>
+                <span class="token-name">黑</span>
+              </div>
+              <div class="token">
+                <div class="token-color" style="background: #86868b;"></div>
+                <span class="token-name">Gray</span>
+              </div>
+            </div>
+          </div>
+          <div class="button-preview">
+            <button class="btn btn-primary">Get Started</button>
+            <button class="btn btn-secondary">Learn More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Easy Design MD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0a0a0a;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 80px 40px;
+    }
+
+    /* Hero title with scanline effect */
+    .hero-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 4rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 60px;
+      position: relative;
+    }
+
+    .hero-title .line1 {
+      display: block;
+      color: #fff;
+      letter-spacing: 0.05em;
+      position: relative;
+    }
+
+    .hero-title .line1::before {
+      content: 'EASY DESIGN';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #fff;
+      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.3) 2px,
+        rgba(255,255,255,0.3) 4px
+      );
+    }
+
+    .hero-title .line2 {
+      display: block;
+      background: repeating-linear-gradient(
+        0deg,
+        #ff2d92,
+        #ff2d92 3px,
+        transparent 3px,
+        transparent 6px
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 5rem;
+      letter-spacing: 0.02em;
+      position: relative;
+    }
+
+    .hero-title .line2::before {
+      content: 'DESIGN.MD';
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        #ff2d92,
+        #ff2d92 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Tagline */
+    .tagline {
+      font-size: 1.2rem;
+      color: #888;
+      margin-bottom: 80px;
+      max-width: 600px;
+      line-height: 1.8;
+    }
+
+    .tagline strong {
+      color: #fff;
+    }
+
+    /* Features grid */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      margin-bottom: 80px;
+    }
+
+    .feature {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 30px;
+      position: relative;
+    }
+
+    .feature::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(180deg, #ff2d92, #00d4ff);
+    }
+
+    .feature h3 {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      color: #ff2d92;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .feature p {
+      color: #888;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Command block */
+    .command-block {
+      background: #0d0d0d;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 30px 40px;
+      margin-bottom: 60px;
+      font-family: 'Space Mono', monospace;
+      position: relative;
+    }
+
+    .command-block::before {
+      content: '> install';
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: #0a0a0a;
+      padding: 0 10px;
+      font-size: 0.8rem;
+      color: #00d4ff;
+    }
+
+    .command {
+      color: #00d4ff;
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+    }
+
+    .command:last-child {
+      margin-bottom: 0;
+    }
+
+    .comment {
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    /* CTA Button */
+    .cta-button {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid #ff2d92;
+      color: #ff2d92;
+      padding: 18px 40px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: #ff2d92;
+      transition: left 0.3s ease;
+      z-index: -1;
+    }
+
+    .cta-button:hover {
+      color: #0a0a0a;
+    }
+
+    .cta-button:hover::before {
+      left: 0;
+    }
+
+    .cta-button span {
+      margin-right: 10px;
+    }
+
+    /* Brands preview */
+    .brands-preview {
+      margin-top: 80px;
+      padding-top: 60px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .brands-preview h4 {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 30px;
+    }
+
+    .brands-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .brand-tag {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      color: #888;
+    }
+
+    .brand-tag.highlight {
+      border-color: #ff2d92;
+      color: #ff2d92;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      .hero-title .line2 {
+        font-size: 3rem;
+      }
+      .features {
+        grid-template-columns: 1fr;
+      }
+      .container {
+        padding: 60px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="hero-title">
+      <span class="line1">EASY</span>
+      <span class="line2">DESIGN.MD</span>
+    </h1>
+
+    <p class="tagline">
+      Tell AI the brand you want to mimic, and it will <strong>automatically download the DESIGN.md file</strong> for you. Powered by 59+ design systems.
+    </p>
+
+    <div class="features">
+      <div class="feature">
+        <h3>Dual-Track Selection</h3>
+        <p>Choose between smart AI recommendations or browse brand demos visually before deciding.</p>
+      </div>
+      <div class="feature">
+        <h3>Smart Recommendations</h3>
+        <p>Tell AI what type of page you're building, and get matched with the perfect design system.</p>
+      </div>
+      <div class="feature">
+        <h3>59+ Design Systems</h3>
+        <p>Stripe, Linear, Airbnb, Apple, Notion, Figma, Vercel, GitHub, and more.</p>
+      </div>
+      <div class="feature">
+        <h3>One-Command Download</h3>
+        <p>Get any brand's design system with a single command. No manual searching needed.</p>
+      </div>
+    </div>
+
+    <div class="command-block">
+      <div class="command">npx skills add maxliux5/easy-design-md</div>
+      <div class="comment">// then tell AI: "I want to build a SaaS landing page"</div>
+    </div>
+
+    <a href="#" class="cta-button">
+      <span>Browse Examples</span> &darr;
+    </a>
+
+    <div class="brands-preview">
+      <h4>Supported Brands</h4>
+      <div class="brands-list">
+        <span class="brand-tag highlight">stripe</span>
+        <span class="brand-tag highlight">linear</span>
+        <span class="brand-tag">airbnb</span>
+        <span class="brand-tag">apple</span>
+        <span class="brand-tag">notion</span>
+        <span class="brand-tag">figma</span>
+        <span class="brand-tag">vercel</span>
+        <span class="brand-tag">github</span>
+        <span class="brand-tag">spotify</span>
+        <span class="brand-tag">+ 50 more</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
