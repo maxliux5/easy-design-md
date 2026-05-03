@@ -1,23 +1,73 @@
-# Easy Design MD
+# EASY DESIGN.MD
 
-Claude Code skill for importing and managing design system documentation from multiple sources.
+<h1>
+  <span style="display:block;color:#fff;font-family:monospace;font-size:3rem;font-weight:700;">EASY</span>
+  <span style="display:block;background:linear-gradient(180deg,#ff2d92,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:monospace;font-size:4rem;font-weight:700;">DESIGN.MD</span>
+</h1>
+
+Tell AI the brand you want to mimic, and it will **automatically download the DESIGN.md file** for you. Powered by 59+ design systems.
+
+---
+
+## Our Principles
+
+### Show Before Download
+
+**Always show demo first, let users choose before downloading.**
+
+When a user says "I want to build a page", don't download blindly. Instead:
+
+1. Present the interactive demo
+2. Let users **see the colors and preview** of recommended brands
+3. Wait for them to choose
+4. Then download
+
+This ensures users make informed decisions based on visual results, not brand names alone.
+
+### Interactive Demo
+
+Try the live demo: **[color-recommender.html](examples/color-recommender.html)**
+
+Select your page type → See the recommended brand's color palette → Preview how it looks → Choose with confidence.
+
+---
 
 ## Features
 
-- **Dual-Track Selection**: Choose between brand mode or manual mode for design system selection
-- **Smart Recommendations**: AI-powered design system recommendations based on your needs
-- **59+ Design Systems**: Support for major design systems including Material, Ant Design, Chakra, Mantine, and more
-- **Configurable Download Directory**: Save design documentation to your preferred location
+| Feature | Description |
+|---------|-------------|
+| **Demo-First** | Show visual preview before downloading |
+| **Smart Recommendations** | Tell AI your page type, get matched with the right brand |
+| **59+ Design Systems** | Stripe, Linear, Airbnb, Apple, Figma, Vercel, GitHub, and more |
+| **One-Command Download** | Get any brand's design system instantly |
+
+---
+
+## Live Demo Videos
+
+### Color Recommender — Pick by Seeing
+
+<video src="examples/recommender.mp4" width="100%" controls autoplay loop muted></video>
+
+Select page type → See palette from real DESIGN.md → Preview in context → Choose with confidence.
+
+### Brand Showcase — Compare Design Systems
+
+<video src="examples/showcase.mp4" width="100%" controls autoplay loop muted></video>
+
+Browse 4 popular design systems: Stripe, Linear, Airbnb, Apple. Each card shows colors, typography, and UI components.
+
+---
 
 ## Installation
 
 ```bash
-# Install from local path
-/claude-skills install /path/to/easy-design-md
-
-# Or use the skills CLI directly
-agent-skills-cli install /path/to/easy-design-md
+npx skills add maxliux5/easy-design-md
 ```
+
+Then tell AI: **"I want to build a SaaS landing page"**
+
+---
 
 ## Usage
 
@@ -27,27 +77,19 @@ After installation, use the skill in Claude Code:
 /easy-design-md
 ```
 
-Follow the interactive prompts to:
-1. Select a design system (brand mode with smart recommendations or manual mode)
-2. Choose your preferred download directory
-3. Import design documentation
+The workflow:
+1. AI shows you the demo (see videos above)
+2. You select a design system
+3. AI downloads the DESIGN.md file
+4. AI builds your page using that design language
 
-## Project Structure
+---
 
-```
-easy-design-md/
-├── skills/easy-design-md/     # Skill package
-│   ├── SKILL.md               # Main skill definition
-│   ├── README.md              # Skill documentation
-│   └── *.png                  # Slide screenshots
-└── .gitignore                 # Git ignore rules
-```
+## Supported Brands
 
-## Tech Stack
+airbnb, apple, cal, claude, cursor, figma, framer, github, linear, notion, raycast, spotify, stripe, vercel, + 50 more
 
-- Claude Code skill framework
-- HTML/CSS for presentation slides
-- Python for page generation
+---
 
 ## License
 

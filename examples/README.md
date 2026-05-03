@@ -1,26 +1,96 @@
-# Easy Design MD
+# EASY DESIGN.MD
 
-Design MD Importer 是一个让 AI 帮助用户快速获取设计系统的 Claude Code skill。用户告诉 AI 想模仿的品牌，AI 会自动下载对应的 `DESIGN.md` 文件。
+<h1>
+  <span style="display:block;color:#fff;font-family:monospace;font-size:3rem;font-weight:700;">EASY</span>
+  <span style="display:block;background:linear-gradient(180deg,#ff2d92,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:monospace;font-size:4rem;font-weight:700;">DESIGN.MD</span>
+</h1>
 
-## 核心功能
+Tell AI the brand you want to mimic, and it will **automatically download the DESIGN.md file** for you. Powered by 59+ design systems.
 
-1. **智能推荐** - 根据页面类型（如 SaaS 官网、电商、博客等）推荐合适的设计系统
-2. **双轨选择流程** - 用户可以明确选择品牌，或让 AI 智能推荐
-3. **59+ 品牌支持** - 包括 Stripe、Linear、Airbnb、Apple、Notion、Figma、Vercel、GitHub、Spotify 等
+---
 
-## 工作流（四步）
+## Our Principles
 
-1. 描述需求（"我要做一个 SaaS 官网"）
-2. AI 智能推荐或用户选择品牌
-3. 自动下载品牌的 DESIGN.md 文件
-4. 基于设计系统进行开发
+### Show Before Download
 
-## 安装方式
+**Always show demo first, let users choose before downloading.**
+
+When a user says "I want to build a page", don't download blindly. Instead:
+
+1. Present the interactive demo
+2. Let users **see the colors and preview** of recommended brands
+3. Wait for them to choose
+4. Then download
+
+This ensures users make informed decisions based on visual results, not brand names alone.
+
+### Interactive Demo
+
+Try the live demo: **[color-recommender.html](examples/color-recommender.html)**
+
+Select your page type → See the recommended brand's color palette → Preview how it looks → Choose with confidence.
+
+---
+
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| **Demo-First** | Show visual preview before downloading |
+| **Smart Recommendations** | Tell AI your page type, get matched with the right brand |
+| **59+ Design Systems** | Stripe, Linear, Airbnb, Apple, Figma, Vercel, GitHub, and more |
+| **One-Command Download** | Get any brand's design system instantly |
+
+---
+
+## Live Demo Videos
+
+### Color Recommender — Pick by Seeing
+
+<video src="examples/recommender.mp4" width="100%" controls autoplay loop muted></video>
+
+Select page type → See palette from real DESIGN.md → Preview in context → Choose with confidence.
+
+### Brand Showcase — Compare Design Systems
+
+<video src="examples/showcase.mp4" width="100%" controls autoplay loop muted></video>
+
+Browse 4 popular design systems: Stripe, Linear, Airbnb, Apple. Each card shows colors, typography, and UI components.
+
+---
+
+## Installation
 
 ```bash
-npx agent-skills-cli install https://github.com/用户名/easy-design-md
+npx skills add maxliux5/easy-design-md
 ```
 
-## 预览
+Then tell AI: **"I want to build a SaaS landing page"**
 
-打开 `presentation.html` 查看完整幻灯片介绍。
+---
+
+## Usage
+
+After installation, use the skill in Claude Code:
+
+```
+/easy-design-md
+```
+
+The workflow:
+1. AI shows you the demo (see videos above)
+2. You select a design system
+3. AI downloads the DESIGN.md file
+4. AI builds your page using that design language
+
+---
+
+## Supported Brands
+
+airbnb, apple, cal, claude, cursor, figma, framer, github, linear, notion, raycast, spotify, stripe, vercel, + 50 more
+
+---
+
+## License
+
+MIT
